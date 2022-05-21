@@ -10,7 +10,7 @@ credentials = configuration['credentials']
 if len(arguing.argv) == 1:
     exit('Error: No arguments.')
 
-elif arguing.checkArgument('upload') and not os.path.exists(arguing.get('upload')):
+elif arguing.check('upload') and not os.path.exists(arguing.get('upload')):
     exit(f'Error: The file "{arguing.get("upload")}" does not exists.')
 
 # Main
@@ -35,13 +35,13 @@ def request(method, url, action, json=None):
 
     return response
 
-if arguing.checkArgument('login'):
+if arguing.check('login'):
     configuration['credentials']['username'] = arguing.get('--username')
     configuration['credentials']['token'] = arguing.get('--token')
 
     datalang.dumpFile('.gc', configuration)
 
-elif arguing.checkArgument('list'):
+elif arguing.check('list'):
     if arguing.get('list') == None:
         action = 'list current user Gists.'
         url = 'https://api.github.com/gists'
@@ -63,7 +63,7 @@ elif arguing.checkArgument('list'):
 
         print()
 
-elif arguing.checkArgument('download'):
+elif arguing.check('download'):
     response = request(
         'get',
         'https://api.github.com/gists/' + arguing.get('download'),
@@ -82,11 +82,11 @@ elif arguing.checkArgument('download'):
     else:
         print('No files.')
 
-elif arguing.checkArgument('upload'):
+elif arguing.check('upload'):
     fileName = arguing.get('upload')
     description = f'{arguing.get("--description")} (gistCat 1.0.1)'
 
-    if arguing.checkArgument('--private'):
+    if arguing.check('--private'):
         public = False
 
     else:
@@ -112,7 +112,7 @@ elif arguing.checkArgument('upload'):
 
     print(f'File "{arguing.get("upload")}" has been uploaded with the ID {response.json()["id"]}.')
 
-elif arguing.checkArgument('delete'):
+elif arguing.check('delete'):
     response = request(
         method='delete',
         url='https://api.github.com/gists/' + arguing.get('delete'),
@@ -121,7 +121,7 @@ elif arguing.checkArgument('delete'):
 
     print(f'Gist "{arguing.get("delete")}" has been deleted.')
 
-elif arguing.checkArgument('update'):
+elif arguing.check('update'):
     if not os.path.exists(arguing.get("--file")):
         exit('Cannot find the file "{arguing.get("--file")}".')
 
@@ -145,3 +145,16 @@ elif arguing.checkArgument('update'):
         )
 
     print(f'Succesfuly updated Gist ({arguing.get("update")}).')
+
+elif arguing.get('commits'):
+    response = request(
+        method='get',
+        url=f'https://api.github.com/gists/{arguing.get("commits")}/commits',
+        action='get commits from' + arguing.get('commits')
+    ).json()
+
+    for commit in response:
+        print(f'From {commit["user"]["login"]} ({commit["version"]}).')
+        print('- Commited at: ' + str(commit['committed_at']))
+        print('- Added      : ' + str(commit['change_status']['additions']))
+        print(f'- Deletions  : {commit["change_status"]["deletions"]}\n')

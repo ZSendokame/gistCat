@@ -40,3 +40,9 @@ Updating
 python gc.py update <Gist ID> --file <Modified file> --description "New description if you want."
 # You can also add new files using --file flag, instead of adding an existing file. Add a new one that does not exists.
 ```
+
+Commits
+```sh
+python gc.py commits <Gist ID> # With that you can see all the commits to a Gist.
+# Who commits, when, deletions, additions and commit ID.
+```
